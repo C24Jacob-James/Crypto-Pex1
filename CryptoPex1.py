@@ -46,7 +46,6 @@ def main():
     # Start with the brute force factoring
     brute_force(toFactor)
 
-
     print()
     pass
 
