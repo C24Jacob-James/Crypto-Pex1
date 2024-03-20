@@ -4,7 +4,7 @@ Date: 22 March 2024
 Purpose: Factor large numbers using Brute Force, Pollards_rho, and dixons
 Documentation: I used Chat GPT to give me the start of the project. I just asked it for the skeleton code and none of the implementations. 
     I used this website to give me the code for Dixon's algorithm: https://www.geeksforgeeks.org/dixons-factorization-method-with-implementation/
-
+    I then asked ChatGPT to make the code and variables more readable.
 """
 
 import numpy as np
