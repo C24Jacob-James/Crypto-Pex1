@@ -78,7 +78,6 @@ def pollardFunc(x, toFactor):
     return (x**2 + 1) % toFactor
     
 ## Begin Dixon's
-
 import numpy as np
 from math import sqrt, ceil, gcd
 import time
@@ -161,9 +160,15 @@ def dixon_main(n, factor_base_size):
                 print(f"Found a factor = {factor}")
                 break
 
+        # Check if two minutes have elapsed
+        if time.time() - start_time > maxTime:
+            print("Time limit exceeded! Exiting...")
+            return
+
     # Calculate elapsed time
     elapsed_time = time.time() - start_time
     print(f"It took {elapsed_time:.2f} seconds.")
+
 
 # Example usage:
 # n = 124076833
@@ -203,8 +208,8 @@ def main():
         # Run Dixon's
         print("\nDixon's Algorithm")
         factorBase = int(input("Enter # of factors in factor base:"))
-        result = dixon_main(toFactor, factorBase)
-        print("Factors:", result)
+        dixon_main(toFactor, factorBase)
+
 
         toContinue = input("Do you want to try another number? (y/n): ")
 
