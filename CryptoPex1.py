@@ -79,53 +79,98 @@ def pollardFunc(x, toFactor):
     
 ## Begin Dixon's
 
-def generate_factor_base(factor_base_size):
-    print("Done generating factor base.")
-    return list(sympy.primerange(2, factor_base_size + 2))
+import numpy as np
+from math import sqrt, ceil, gcd
+import time
 
-def dixons_algorithm_single_equations(toFactor, factor_base):
+def is_prime(num):
+    if num <= 1:
+        return False
+    if num == 2:
+        return True
+    if num % 2 == 0:
+        return False
+    for i in range(3, int(sqrt(num)) + 1, 2):
+        if num % i == 0:
+            return False
+    return True
 
-    print("1", toFactor, "===", toFactor, end=" ")
-    for p in factor_base:
-        x = int(np.ceil(np.sqrt(p * toFactor)))
-        y_square = x ** 2 - toFactor
-        if sympy.isprime(y_square):
-            y = int(np.sqrt(y_square))
-            print(x, y, end=" ")
-            print(np.sum([int(digit) for digit in str(x)]), end=" ")
-            print(np.sum([int(digit) for digit in str(y)]), end=" ")
-            for i in range(len(str(x))):
-                print(str(x).count(str(i)), end=" ")
-            for i in range(len(str(y))):
-                print(str(y).count(str(i)), end=" ")
+def generate_primes(limit):
+    primes = []
+    num = 2
+    while len(primes) < limit:
+        if is_prime(num):
+            primes.append(num)
+        num += 1
+    return primes
+
+def factorize(n, factor_base):
+    factors = [0] * len(factor_base)
+    for i, prime in enumerate(factor_base):
+        while n % prime == 0:
+            n //= prime
+            factors[i] += 1
+    return factors
+
+def dixon_main(n, factor_base_size):
+    # Generate factor base using primes
+    factor_base = generate_primes(factor_base_size)
+    
+    # Store timing information
+    start_time = time.time()
+
+    # Starting from the ceil of the root
+    # of the given number N
+    start = int(ceil(sqrt(n)))
+
+    # Output format
+    print("x * y === x^2 mod N", end="")
+    for prime in factor_base:
+        print(f" {prime}", end="")
+    print()
+
+    # For every number from the square root 
+    # Till N
+    for i in range(start, n):
+        # Storing the related squares
+        pairs = []
+
+        # Finding the related squares 
+        for j in range(len(factor_base)):
+            lhs = i**2 % n
+            rhs = factor_base[j]**2 % n
+            
+            # If the two numbers are the 
+            # related squares, then append
+            # them to the array 
+            if(lhs == rhs):
+                pairs.append([i, factor_base[j]])
+
+        # Output the pairs
+        for pair in pairs:
+            factors = factorize(pair[0] * pair[1], factor_base)
+            print(f"{pair[0]} * {pair[1]} === {i}", end="")
+            for factor in factors:
+                print(f" {factor}", end="")
             print()
 
-# Timing mechanism with retries
-def dixon_main(toFactor, factor_base_size, retries=3, timeout=120):
-    attempts = 0
-    while attempts < retries:
-        try:
-            start_time = time.time()
-            factor_base = generate_factor_base(int(factor_base_size))
-            dixons_algorithm_single_equations(toFactor, factor_base)
-            end_time = time.time()
-            print("Total time taken:", end_time - start_time, "seconds")
-            return
-        except Exception as e:
-            print("An error occurred:", e)
-            attempts += 1
-    print("Factoring failed after", retries, "attempts.")
+        # Check if any factors found
+        for pair in pairs:
+            factor = gcd(pair[0] - pair[1], n)
+            if factor != 1 and factor != n:
+                print(f"Found a factor = {factor}")
+                break
 
+    # Calculate elapsed time
+    elapsed_time = time.time() - start_time
+    print(f"It took {elapsed_time:.2f} seconds.")
 
 # Example usage:
-# Assume you have a FactorBase class for factorization
-# factor_base = FactorBase(30)  # Assuming the factor base will be no larger than 30
-# k = ...  # Some integer
-# n = ...  # The number to factorize
+# n = 124076833
+# factor_base_size = 10
+# dixon_main(n, factor_base_size)
 
-# Call Dixon's algorithm
-# factors = dixons_algorithm(k, n, factor_base)
-# print("Factors:", factors)
+
 
 
 
@@ -157,9 +202,9 @@ def main():
 
         # Run Dixon's
         print("\nDixon's Algorithm")
-        factorBase = input("Enter # of factors in factor base:")
-        dixon_main(toFactor, factorBase)
-        print()
+        factorBase = int(input("Enter # of factors in factor base:"))
+        result = dixon_main(toFactor, factorBase)
+        print("Factors:", result)
 
         toContinue = input("Do you want to try another number? (y/n): ")
 
